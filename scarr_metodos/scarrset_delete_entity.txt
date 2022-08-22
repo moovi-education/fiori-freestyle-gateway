@@ -1,0 +1,27 @@
+DATA: lv_carrid TYPE scarr-carrid.
+
+    DATA(keys) = io_tech_request_context->get_keys( ).
+
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<key>)
+    WITH KEY name = 'CARRID'.
+    IF <key> IS ASSIGNED.
+      lv_carrid = <key>-value.
+    ELSE.
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          textid            = /iwbep/cx_mgw_busi_exception=>business_error
+          message_container = me->mo_context->get_message_container( )
+          message           = 'Id da Companhia Aérea não informado'.
+
+    ENDIF.
+
+    DELETE FROM scarr
+    WHERE carrid eq lv_carrid.
+
+    IF not sy-subrc is INITIAL.
+       RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          textid            = /iwbep/cx_mgw_busi_exception=>business_error
+          message_container = me->mo_context->get_message_container( )
+          message           = |Erro ao Excluir registro de ID: { lv_carrid }|.
+    ENDIF.

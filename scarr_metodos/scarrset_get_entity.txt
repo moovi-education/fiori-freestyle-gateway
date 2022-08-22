@@ -1,0 +1,25 @@
+    DATA: variavel_carrid TYPE scarr-carrid.
+* recebe a chaves que foram passadas,
+* que chegam na classe io_tech_request_context keys
+    DATA(keys) = io_tech_request_context->get_keys( ).
+* Realizar a leitura do campo chave CARRID,
+* da Nossa entidade
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<key>)
+    WITH KEY name = 'CARRID'.
+    IF <key> IS ASSIGNED.
+      variavel_carrid = <key>-value.
+    ELSE.
+* Caso a requisição HTTP, não tenha passado a chave
+* incorreta retorna um erro
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_tech_exception.
+    ENDIF.
+
+    SELECT SINGLE
+      carrid
+      carrname
+      currcode
+      url
+      INTO CORRESPONDING FIELDS OF er_entity
+      FROM scarr
+      WHERE carrid EQ variavel_carrid.
+
