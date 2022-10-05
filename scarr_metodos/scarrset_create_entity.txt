@@ -1,8 +1,7 @@
-  method SCARRSET_CREATE_ENTITY.
+   method SCARRSET_CREATE_ENTITY.
 
-  DATA:   ti_scarr  TYPE STANDARD TABLE OF scarr,
-          ws_entity TYPE zcl_zpsilva_gw_mpc=>ts_scarr,
-          ws_scarr  LIKE LINE OF ti_scarr.
+DATA:   ti_scarr  TYPE STANDARD TABLE OF scarr,
+        ws_entity TYPE zcl_zpssilva_gw_mpc=>ts_scarr.
 
 
     io_data_provider->read_entry_data(
@@ -30,9 +29,7 @@
 
       ELSE.
 
-        MOVE-CORRESPONDING ws_entity TO ws_scarr.
-
-        INSERT scarr FROM ws_scarr.
+        INSERT scarr FROM ws_entity.
 
         IF sy-subrc IS INITIAL.
           er_entity = ws_entity.
@@ -42,6 +39,7 @@
 
 
     ENDIF.
+
 
 
   endmethod.
