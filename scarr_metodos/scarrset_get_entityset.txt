@@ -1,3 +1,5 @@
+  METHOD scarrset_get_entityset.
+
 
 *   Variavel de importação do tipo retorno do método get_filter_select_options( )
 *   do metodo de retorno da método get_filter
@@ -6,7 +8,8 @@
           range_carrid          TYPE RANGE OF scarr-carrid,
           range_carrname        TYPE RANGE OF scarr-carrname,
           wa_carrid             LIKE LINE OF range_carrid,
-          wa_carrname           LIKE LINE OF range_carrname.
+          wa_carrname           LIKE LINE OF range_carrname,
+          sortorder             TYPE    abap_sortorder_tab.
 
 * $filter
     filter_select_options = io_tech_request_context->get_filter( )->get_filter_select_options( ).
@@ -41,3 +44,22 @@
       WHERE carrid IN range_carrid AND
             carrname IN range_carrname.
 
+*$Ordeby
+    LOOP AT it_order ASSIGNING FIELD-SYMBOL(<order>).
+
+      APPEND INITIAL LINE TO sortorder ASSIGNING FIELD-SYMBOL(<sortorder>).
+
+      <sortorder>-name = <order>-property.
+
+      IF <order>-order = 'desc'.
+        <sortorder>-descending = abap_true.
+      ENDIF.
+
+    ENDLOOP.
+
+
+    SORT et_entityset BY (sortorder).
+
+
+
+  ENDMETHOD.
