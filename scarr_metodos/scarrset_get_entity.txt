@@ -1,4 +1,6 @@
-    DATA: variavel_carrid TYPE scarr-carrid.
+  method SCARRSET_GET_ENTITY.
+
+ DATA: variavel_carrid TYPE scarr-carrid.
 * recebe a chaves que foram passadas,
 * que chegam na classe io_tech_request_context keys
     DATA(keys) = io_tech_request_context->get_keys( ).
@@ -23,3 +25,7 @@
       FROM scarr
       WHERE carrid EQ variavel_carrid.
 
+
+
+
+  endmethod.
