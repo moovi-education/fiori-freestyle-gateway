@@ -1,6 +1,6 @@
-  DATA: ti_scarr  TYPE STANDARD TABLE OF scarr,
-          ws_entity TYPE zcl_zpsilva_gw_mpc=>ts_scarr,
-          ws_scarr  LIKE LINE OF ti_scarr.
+  method SCARRSET_UPDATE_ENTITY.
+
+  DATA: ws_entity TYPE zcl_zpssilva_gw_mpc=>ts_scarr.
 
     io_data_provider->read_entry_data(
       IMPORTING
@@ -16,12 +16,12 @@
 
     ELSE.
 
-      MOVE-CORRESPONDING  ws_entity TO ws_scarr.
-
-      UPDATE scarr FROM ws_scarr.
+      UPDATE scarr FROM ws_entity.
 
       IF sy-subrc IS INITIAL.
         er_entity = ws_entity.
       ENDIF.
 
     ENDIF.
+
+  endmethod.
