@@ -1,3 +1,5 @@
+  method SPFLISET_GET_ENTITYSET.
+
 *   Variavel de importação do typo retorno do método get_filter_select_options( )
 *   do metodo de retorno da método get_filter
 *   da classe /IWBEP/IF_MGW_REQ_ENTITYSET
@@ -66,3 +68,6 @@
         AND connid IN @range_connid.
 
     MOVE-CORRESPONDING t_entityset TO et_entityset.
+
+
+  endmethod.
