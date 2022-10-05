@@ -1,5 +1,6 @@
-DATA: variavel_carrid TYPE spfli-carrid,
-          variavel_connid TYPE spfli-connid.
+  method SPFLISET_GET_ENTITY.
+DATA: lv_carrid TYPE spfli-carrid,
+      lv_connid TYPE spfli-connid.
 
 * recebe a chaves que fora passadas,
 * que chegam na classe io_tech_request_context keys
@@ -9,7 +10,7 @@ DATA: variavel_carrid TYPE spfli-carrid,
     READ TABLE keys ASSIGNING FIELD-SYMBOL(<key>)
     WITH KEY name = 'CARRID'.
     IF <key> IS ASSIGNED.
-      variavel_carrid = <key>-value.
+      lv_carrid = <key>-value.
     ELSE.
 * Caso a requisição HTTP, não tenha passado a chave
 * incorreta retorna um erro
@@ -21,7 +22,7 @@ DATA: variavel_carrid TYPE spfli-carrid,
     READ TABLE keys ASSIGNING <key>
     WITH KEY name = 'CONNID'.
     IF <key> IS ASSIGNED.
-      variavel_connid = <key>-value.
+      lv_connid = <key>-value.
     ELSE.
 * Caso a requisição HTTP, não tenha passado a chave
 * incorreta retorna um erro
@@ -47,9 +48,12 @@ DATA: variavel_carrid TYPE spfli-carrid,
     period
   INTO @DATA(wa_spfli)
   FROM spfli
-  WHERE carrid EQ @variavel_carrid
-    AND connid EQ @variavel_connid.
+  WHERE carrid EQ @lv_carrid
+    AND connid EQ @lv_connid.
 
 
     MOVE-CORRESPONDING wa_spfli TO er_entity.
 
+
+
+  endmethod.
