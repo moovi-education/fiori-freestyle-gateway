@@ -1,0 +1,33 @@
+  METHOD spfliset_create_entity.
+
+
+    DATA: entry_data LIKE er_entity,
+          wa_spfli   TYPE spfli.
+
+
+    io_data_provider->read_entry_data(
+      IMPORTING
+        es_data = entry_data
+    ).
+
+    MOVE-CORRESPONDING entry_data TO wa_spfli.
+
+    INSERT spfli
+    FROM wa_spfli.
+
+    IF sy-subrc NE 0.
+      me->mo_context->get_message_container( )->add_message(
+        iv_msg_type   = 'E' "Você pode delclarar o typo de erro
+        iv_msg_id     = '1' "O Id do typo de erro
+        iv_msg_number = '1' "e o número
+        iv_msg_v1     = 'Erro ao Inserir, subrc = ' && sy-subrc  ).
+
+*      Excpetion com mensagem
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = me->mo_context->get_message_container( ).
+
+    ELSE.
+      MOVE-CORRESPONDING entry_data TO er_entity.
+    ENDIF.
+  ENDMETHOD.

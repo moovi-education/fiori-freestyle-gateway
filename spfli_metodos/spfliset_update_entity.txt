@@ -1,0 +1,81 @@
+  METHOD spfliset_update_entity.
+
+    DATA: variavel_carrid TYPE spfli-carrid,
+          variavel_connid TYPE spfli-connid,
+          entry_data      LIKE er_entity,
+          wa_spfli        TYPE spfli.
+* recebe a chaves que fora passadas,
+* que chegam na classe io_tech_request_context keys
+    DATA(keys) = io_tech_request_context->get_keys( ).
+* Realizar a leitura do campo chave CARRID,
+* da Nossa entidade
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<key>)
+    WITH KEY name = 'CARRID'.
+    IF <key> IS ASSIGNED.
+      variavel_carrid = <key>-value.
+    ELSE.
+* Caso a requisição HTTP, não tenha passado a chave
+* incorreta retorna um erro
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_tech_exception.
+    ENDIF.
+
+    READ TABLE keys ASSIGNING <key>
+    WITH KEY name = 'CONNID'.
+    IF <key> IS ASSIGNED.
+      variavel_connid = <key>-value.
+    ELSE.
+* Caso a requisição HTTP, não tenha passado a chave
+* incorreta retorna um erro
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_tech_exception.
+    ENDIF.
+
+* Quando você recebe por meio de requisão HTTP,
+*uma informação como um registro de tabela, você
+*Consegue telo pelo metódo read_entry_data
+    io_data_provider->read_entry_data(
+      IMPORTING
+        es_data = entry_data
+    ).
+
+    MOVE-CORRESPONDING entry_data TO wa_spfli.
+
+
+    UPDATE spfli
+        SET
+        countryfr = @wa_spfli-countryfr,
+        cityfrom  = @wa_spfli-cityfrom,
+        airpfrom  = @wa_spfli-airpfrom,
+        countryto = @wa_spfli-countryto,
+        cityto    = @wa_spfli-cityto,
+        airpto    = @wa_spfli-airpto,
+        fltime    = @wa_spfli-fltime,
+        deptime   = @wa_spfli-deptime,
+        arrtime   = @wa_spfli-arrtime,
+        distance  = @wa_spfli-distance,
+        distid    = @wa_spfli-distid,
+        fltype    = @wa_spfli-fltype,
+        period    = @wa_spfli-period
+           WHERE carrid = @variavel_carrid
+             AND connid = @variavel_connid.
+
+    IF sy-subrc NE 0.
+*    Caso deu algum erro no update, retornar erro.
+*    você também pode expecificar o erro.
+      me->mo_context->get_message_container( )->add_message(
+        iv_msg_type   = 'E' "Você pode delclarar o typo de erro
+        iv_msg_id     = '1' "O Id do typo de erro
+        iv_msg_number = '1' "e o número
+        iv_msg_v1     = 'Erro ao Inserir, subrc = ' && sy-subrc  ).
+
+*      Excpetion com mensagem
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = me->mo_context->get_message_container( ).
+
+    ELSE.
+
+      MOVE-CORRESPONDING entry_data TO er_entity.
+    ENDIF.
+
+
+  ENDMETHOD.

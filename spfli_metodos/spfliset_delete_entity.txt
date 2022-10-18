@@ -1,0 +1,50 @@
+  METHOD spfliset_delete_entity.
+
+    DATA: keys            TYPE /iwbep/t_mgw_tech_pairs,
+          variavel_carrid TYPE spfli-carrid,
+          variavel_connid TYPE spfli-connid.
+
+    keys = io_tech_request_context->get_keys( ).
+
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<key>)
+     WITH KEY name = 'CARRID'.
+    IF <key> IS ASSIGNED.
+      variavel_carrid = <key>-value.
+    ELSE.
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_tech_exception.
+    ENDIF.
+
+    READ TABLE keys ASSIGNING <key>
+     WITH KEY name = 'CONNID'.
+    IF <key> IS ASSIGNED.
+      variavel_connid = <key>-value.
+    ELSE.
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_tech_exception.
+    ENDIF.
+
+
+
+    DELETE FROM spfli
+    WHERE carrid EQ variavel_carrid
+      AND connid EQ variavel_connid.
+
+    IF sy-subrc NE 0.
+
+      ROLLBACK WORK.
+*    Caso deu algum erro no delete, retornar erro.
+*    você também pode expecificar o erro.
+      me->mo_context->get_message_container( )->add_message(
+        iv_msg_type   = 'E' "Você pode delclarar o typo de erro
+        iv_msg_id     = '1' "O Id do typo de erro
+        iv_msg_number = '1' "e o número
+        iv_msg_v1     = 'Erro ao deletar na table SPFLI, subrc = ' && sy-subrc  ).
+
+
+*      Excpetion com mensagem
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = me->mo_context->get_message_container( ).
+    ENDIF.
+
+
+  ENDMETHOD.
